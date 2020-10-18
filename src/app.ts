@@ -23,7 +23,7 @@ const intents = new Map<string, (agent: any) => void>()
 // Set specific intent-name to it's respective method
 intents.set('Default Fallback Intent', fallback)
 intents.set('Default Welcome Intent', welcome)
-intents.set('Current weather', weather)
+intents.set('Huidige weer', weather)
 
 
 app.post('/', async (req, res) => {
