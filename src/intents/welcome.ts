@@ -2,6 +2,6 @@
 export const welcome = (conv: any) => {
 
     return conv.add(
-        `Welkom bij de Ciphix Conversational Automation Case!`
+        `Welkom bij de Ciphix Conversational Automation Case!!!`
     )
 }
