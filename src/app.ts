@@ -6,6 +6,7 @@ import { WebhookClient } from 'dialogflow-fulfillment'
 // intent method imports
 import { fallback } from './intents/fallback'
 import { welcome } from './intents/welcome'
+import { weather } from './intents/weather'
 
 const app = express()
 
@@ -22,6 +23,8 @@ const intents = new Map<string, (agent: any) => void>()
 // Set specific intent-name to it's respective method
 intents.set('Default Fallback Intent', fallback)
 intents.set('Default Welcome Intent', welcome)
+intents.set('Current weather', weather)
+
 
 app.post('/', async (req, res) => {
     const agent: any = new WebhookClient({ request: req, response: res })
