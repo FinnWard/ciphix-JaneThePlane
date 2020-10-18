@@ -1,3 +1,6 @@
 10/18/2020
 	- Ran into issue with managing where to run my weather API calls and troubleshooting them.
     + Initially looking through documentation on Typescript API calls and working through some examples without success in implementing this in my code I have resorted to looking up a dialog flow weather chatbot example.
+
+    
+    
