@@ -1,21 +1,32 @@
+import { response } from 'express';
 import * as http from 'http';
+const axios = require('axios');
 
-//const host = 'api.worldweatheronline.com';
-//const wwoApiKey = '3e60dec676e94a88a97112430201810';
+const openweathermap = new Map ();
+openweathermap.set('host', 'http://api.openweathermap.org/data/2.5/find')
+openweathermap.set('apiKey', '483ddfa2413a8028b5b145c7c93c2775')
 
-const host = 'api.openweathermap.org';
-const ApiKey = '483ddfa2413a8028b5b145c7c93c2775';
+
+const geocode = new Map ();
+geocode.set('host', 'https://geocode.xyz/')
+geocode.set('apiKey', '146630500381958569682x18325')
 
 
 // Intent name: Huidig weer
-
 export const weather = (conv: any) => {
 
     //required paramater to get weather info
-    let city = conv.parameters.location['city'];
+    let city = conv.parameters['geo-city'];
     if (!city){
         return conv.add('Hier is het wel lekker weer! Waar zit jij?')
     }
+    
+    //getting further data on the city eg lattitude & longtitude
+    getGeo(city).then((cityOutput) => {
+        const cityData = cityOutput;
+    }).catch(() => console.log('error in getting geodata'));
+    
+    
 
     //parsing a date if available.
     let date = '';
@@ -24,45 +35,57 @@ export const weather = (conv: any) => {
       console.log('Date: ' + date);
     }
 
-    return callWeatherApi(city, date).then((output) => {
+    return callWeatherApi(city).then((output) => {
         conv.add(output); // Return the results of the weather API to Dialogflow
-    }).catch(() => conv.add(`I don't know the weather but I hope it's good!`));
+    }).catch(() => conv.add(`Oei! Ik kan het weer niet vinden maar ik hoop dat het zonnig is!`));
 
 
 }
-
-function callWeatherApi (city: string, date: string) { //voorbeeld functie van https://github.com/dialogflow/fulfillment-weather-nodejs/blob/master/functions/index.js
+function callWeatherApi (city: string){
     return new Promise((resolve, reject) => {
-        // Create the path for the HTTP request to get the weather
-        let path = '/data/2.5/find' + '?q=' + encodeURIComponent(city) + '&appid=' + ApiKey + '&units=metric&lang=nl';
-        console.log('API Request: ' + host + path);
-  
-        // Make the HTTP request to get the weather
-        http.get({host: host, path: path}, (res) => {
-            let body = ''; // var to store the response chunks
-            res.on('data', (d) => { body += d; }); // store each response chunk
-            res.on('end', () => {
-            // After all the data has been received parse the JSON for desired data
-            let response = JSON.parse(body);
-            let forecast = response['list'][0]['main'];
-            let location = response['list'][0]['name'];
-            let conditions = response['list'][0]['weather'][0];
-    
-            // Create response
-            let output = `op het moment in ${location} 
-            is het ${conditions['description']} met een hoog van
-            ${forecast['temp_max']}°C en een laag van 
-            ${forecast['temp_min']}°C.`;
-  
-            // Resolve the promise with the output text
-            console.log(output);
-            resolve(output);
+        const params = {
+            q: encodeURIComponent(city),
+            appid: openweathermap.get('apiKey'),
+            units: 'metric',
+            lang: 'nl'
+        }
+        
+        axios.get(openweathermap.get('host'), {params})
+            .then((response: { data: any; }) => {
+                let forecast = response.data['list'][0]['main'];
+                let location = response.data['list'][0]['name'];
+                let conditions = response.data['list'][0]['weather'][0];
+        
+                // Create response
+                let output = `op het moment in ${location} 
+                is het ${conditions['description']} met een hoog van
+                ${forecast['temp_max']}°C en een laag van 
+                ${forecast['temp_min']}°C.`;
+      
+                // Resolve the promise with the output text
+                console.log(output);
+                resolve(output);
+            }).catch((error: any) => {
+                console.log(`Error calling the weather API: ${error}`)
+                reject();
         });
-        res.on('error', (error) => {
-            console.log(`Error calling the weather API: ${error}`)
-            reject();
-        });
-      });
     });
-};
-//test  
+}
+
+function getGeo (city: string){
+    return new Promise((resolve, reject) => {
+        const params = {
+            auth: geocode.get('apiKey'),
+            locate: city,
+            json: '1'
+        }
+        
+        axios.get(geocode.get('host'), {params})
+            .then((response: { data: any; }) => {
+            console.log(response.data['longt']);
+            resolve(response.data);
+            }).catch((error: any) => {
+            reject(error);
+            });
+    });
+}
