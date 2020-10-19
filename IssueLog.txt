@@ -4,5 +4,8 @@
 	- Still figuring out exactly how to manage the context switches between the intents.
 	- flight API's seem not to use flightnumbers that i am familiar with. might need to dumb it down and have userinput for flight departure and arrivals.
 
-    
+10/19/2020
+	- integrated a geofinder for locations so i can get lat and long info.
+	- integrated new weather API that works with lat & long. this will allow me to also call weather information per minute/hour/day.
+	- changed Get request handler from HTTP to axios to simplify code. 
     
