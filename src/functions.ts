@@ -2,56 +2,33 @@
 import axios from 'axios';
 
 
-export function calculateFlightTime(departureCity: string,destinationCity: string){
+export function calculateFlightTime(departureLat: number,departureLon: number, destinationLat: number, destinationLon: number){
+
+    //below calculation for flight distance provided by: https://www.movable-type.co.uk/scripts/latlong.html
+    let R = 6371e3; // metres
+    let φ1 = departureLat * Math.PI/180; // φ, λ in radians
+    let φ2 = destinationLat * Math.PI/180;
+    let Δφ = (destinationLat-departureLat) * Math.PI/180;
+    let Δλ = (destinationLon-departureLon) * Math.PI/180;
+
+    let a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     
-    return new Promise<number>((resolve, reject) => {
-    callGeoApi(departureCity).then((cityOutput) => {
-        let departureCityData: any = cityOutput;
-        callGeoApi(destinationCity).then((cityOutput) => {
-            let destinationCityData: any = cityOutput;
-            
-            let departureLat = departureCityData['latt'];
-            let departureLon = departureCityData['longt'];
-            let destinationLat = destinationCityData['latt'];
-            let destinationLon = destinationCityData['longt'];
-        
-            //below calculation for flight distance provided by: https://www.movable-type.co.uk/scripts/latlong.html
-            let R = 6371e3; // metres
-            let φ1 = departureLat * Math.PI/180; // φ, λ in radians
-            let φ2 = destinationLat * Math.PI/180;
-            let Δφ = (destinationLat-departureLat) * Math.PI/180;
-            let Δλ = (destinationLon-departureLon) * Math.PI/180;
-        
-            let a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-                    Math.cos(φ1) * Math.cos(φ2) *
-                    Math.sin(Δλ/2) * Math.sin(Δλ/2);
-            let c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            
-            let flightDistance = R * c; // in metres
-            console.log('distance: '+ flightDistance);
-            // we calculate the flight time with a rough estimation calculation 30 min plus 1 hour per every 500 miles. calculation provided by https://openflights.org/faq 
-            let flightTime = 0.5 + (flightDistance/(500*1609.34));
-            console.log('time: ' + flightTime);
-            console.log('Hours: ' + Math.floor(flightTime));
-            console.log('Minutes: '+ Math.floor((flightTime - Math.floor(flightTime))*60));
-            resolve(flightTime);
-
-        }).catch((error: any) => {
-            console.log('encountered the following error in calling destinationCity geodata: ' + error);
-            reject();
-        });
-    }).catch((error: any) => {
-        console.log('encountered the following error in calling departureCity geodata: ' + error);
-        reject();
-    });
-
-
-});
+    let flightDistance = R * c; // in metres
+    console.log('distance: '+ flightDistance);
+    // we calculate the flight time with a rough estimation calculation 30 min plus 1 hour per every 500 miles. calculation provided by https://openflights.org/faq 
+    let flightTime = 0.5 + (flightDistance/(500*1609.34));
+    console.log('time: ' + flightTime);
+    console.log('Hours: ' + Math.floor(flightTime));
+    console.log('Minutes: '+ Math.floor((flightTime - Math.floor(flightTime))*60));
+    return flightTime;
 }
 
 
 //A function that outputs weather data based on location and time. if you provide a empty date vaiable it will output current weather at location
-export function callWeatherApi(cityData: any,dateTime: Date) {
+export function callWeatherApi(cityData: any,dateTime?: Date) {
     
     //Setting the API data:
     const openweathermap = new Map();
@@ -61,7 +38,7 @@ export function callWeatherApi(cityData: any,dateTime: Date) {
     console.log('Im grabbing weather data!')
     console.log(dateTime)
     
-    return new Promise((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
         const params = {
             lat: cityData['latt'],
             lon: cityData['longt'],
@@ -73,11 +50,12 @@ export function callWeatherApi(cityData: any,dateTime: Date) {
         axios.get(openweathermap.get('host'), { params })
             .then((response: { data: any; }) => {
                 
-                let unixDateTime : any;
-                let currentTime = new Date();
-                unixDateTime = (dateTime.getTime() / 1000).toFixed(0);
+
                 //checking if we have also recieved a timestamp. 
-                if(dateTime.getTime()> (currentTime.getTime()+5000)){
+                if(!(dateTime == undefined)){
+                    //defining a unix datetime for comparison
+                    let unixDateTime : any;
+                    unixDateTime = (dateTime.getTime() / 1000).toFixed(0);
                     let closestDate = 0; // we will store the closest date here as we iterate
                     for (var i =0; i< response.data['hourly'].length ;i++) {// as we have hourly and daily date we will need to loop twice.
                         if (Math.abs(unixDateTime - response.data['hourly'][i]['dt']) < Math.abs(unixDateTime - closestDate)){
