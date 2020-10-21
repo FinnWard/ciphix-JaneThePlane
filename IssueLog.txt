@@ -8,4 +8,8 @@
 	- integrated a geofinder for locations so i can get lat and long info.
 	- integrated new weather API that works with lat & long. this will allow me to also call weather information per minute/hour/day.
 	- changed Get request handler from HTTP to axios to simplify code. 
+
+10/21/2020
+	- geoData API is whack, amsterdam is in japan and Tokio is in south africa apparently. 
+	- International databases dont like dutch city names eg: parijs instead of paris. dialogflow automaticly provides dutch naming even if spelled in english way. 
     
