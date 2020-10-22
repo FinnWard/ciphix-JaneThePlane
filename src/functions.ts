@@ -40,6 +40,12 @@ export function calculateFlightTime(departureLat: number,departureLon: number, d
 
 export function callWeatherApi(cityData: any,dateTime?: Date) {
     
+    interface forecast{
+        temp: number;
+        windSpeed: number;
+        conditions: string;
+    } 
+
     //Setting the API data:
     const openweathermap = new Map();
     openweathermap.set('host', 'https://api.openweathermap.org/data/2.5/onecall')
@@ -48,7 +54,7 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
     console.log('Im grabbing weather data!')
     console.log(dateTime)
     
-    return new Promise<string>((resolve, reject) => {
+    return new Promise<forecast>((resolve, reject) => {
         const params = {
             lat: cityData['results'][0]['geometry']['location']['lat'],
             lon: cityData['results'][0]['geometry']['location']['lng'],
@@ -81,55 +87,69 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
                     }
                     
                     // now that we have the closest timestamp to the ask lets find the index. we will first check the hourly dataset
-                    let indexClosestDate = -1;
-                    let hourlyDaily = 'hourly';
+                    let indexClosestDate: number = -1;
+                    let hourlyDaily: string = 'hourly';
                     console.log(indexClosestDate);
                     indexClosestDate = response.data['hourly'].map(function(e: { dt: any; }) { return e.dt; }).indexOf(closestDate);
-                    let forecastTemp = response.data[hourlyDaily][indexClosestDate]['temp']; //need to diclare this before as the format changes with hourly/daily
+                    let temp: number = response.data[hourlyDaily][indexClosestDate]['temp']; //need to diclare this before as the format changes with hourly/daily
                     console.log(indexClosestDate + hourlyDaily);
+                    
                     // if the index is still NULL the closest date will be in the days
                     if(indexClosestDate == -1){
                         console.log('Looking for daily');
                         indexClosestDate = response.data['daily'].map(function(e: { dt: any; }) { return e.dt; }).indexOf(closestDate);
                         hourlyDaily = 'daily';
-                        forecastTemp = response.data[hourlyDaily][indexClosestDate]['temp']['day'];
+                        temp = response.data[hourlyDaily][indexClosestDate]['temp']['day'];
                     }
                     console.log(indexClosestDate + hourlyDaily);
-                    console.log(forecastTemp);                    
+                    console.log(temp);                    
                     
                     //now we know where the data is in the dataset we can start filling out our responses
-                    let forecastWind = response.data[hourlyDaily][indexClosestDate]['wind_speed'];
-                    let conditions = response.data[hourlyDaily][indexClosestDate]['weather'][0];
-                    let readableDate = dateTime.toDateString().split(' ')//breaking up the datetime for output
+                    let windSpeed: number = response.data[hourlyDaily][indexClosestDate]['wind_speed'];
+                    let conditions: string = response.data[hourlyDaily][indexClosestDate]['weather'][0]['description'];
+                    
+                    
 
-
+                    let forecast = {
+                        temp: temp, 
+                        windSpeed: windSpeed, 
+                        conditions: conditions
+                    }
+                    /*
                     // Create response
                     let output = 
                     `On ${readableDate[2]} ${readableDate[1]} in ${cityData['results'][0]['address_components'][0]['short_name']} 
-                    it is ${conditions['description']} with a temperature of
+                    it is ${conditions} with a temperature of
                     ${forecastTemp}°C and a windspeed of
-                    ${forecastWind} knots.`;
+                    ${forecastWind} knots.`;*/
 
                     // Resolve the promise with the output text
-                    console.log(output);
+                    console.log(forecast);
                     console.log('Im done grabbing weather data!')
-                    resolve(output);       
+                    resolve(forecast);       
                 }
                 else{//if no datetime was provided we respond with current weather
-                let forecast = response.data['current'];
-                let conditions = response.data['current']['weather'][0];
+                    let temp: number = response.data['current']['temp'];
+                    let windSpeed: number = response.data['current']['wind_speed'];
+                    let conditions: string = response.data['current']['weather'][0]['description'];
 
-                // Create response
-                let output = 
-                `At this time in ${cityData['results'][0]['address_components'][0]['short_name']} 
-                it is ${conditions['description']} with a temperature of
-                ${forecast['temp']}°C and a windspeed of
-                ${forecast['wind_speed']} knots.`;
+                    let forecast = {
+                        temp: temp, 
+                        windSpeed: windSpeed, 
+                        conditions: conditions
+                    }
+                    /*
+                    // Create response
+                    let output = 
+                    `At this time in ${cityData['results'][0]['address_components'][0]['short_name']} 
+                    it is ${conditions['description']} with a temperature of
+                    ${forecast['temp']}°C and a windspeed of
+                    ${forecast['wind_speed']} knots.`;*/
 
-                // Resolve the promise with the output text
-                console.log(output);
-                console.log('Im done grabbing weather data!')
-                resolve(output);
+                    // Resolve the promise with the output text
+                    console.log(forecast);
+                    console.log('Im done grabbing weather data!')
+                    resolve(forecast);
                 };
             }).catch((error: any) => {
                 console.log(`Error calling the weather API: ${error}`)

@@ -4,7 +4,7 @@ import { callGeoApi, callWeatherApi, calculateFlightTime } from '../functions';
 export const flight = async (conv: any) => {
 
     //parse data that is sent to the bot
-    console.log('flight parameters: ' + conv.parameters);
+    console.log(conv.parameters);
     let departureCity = conv.parameters['departureCity'];
     let destinationCity = conv.parameters['destinationCity'];
 
@@ -17,7 +17,7 @@ export const flight = async (conv: any) => {
 
     //do some slot handeling to make sure we get data
     if (!departureCity && !destinationCity) {
-        return conv.add('That sounds just swell! Whereabouts are we and whats the destinaton partner?')
+        return conv.add('That sounds just swell! Where are we and whats the destinaton?')
     }
 
     if (!departureCity) {
@@ -67,23 +67,47 @@ export const flight = async (conv: any) => {
     conv.add('Expected arrival is at ' + arrivalTime.getHours() + ':' + arrivalTime.getMinutes());
     console.log(dateTime);
     console.log(arrivalTime);
-    
+    let readableDate = arrivalTime.toDateString().split(' ')//breaking up the datetime for output
+
     //we will put the weather output here
-    let departureOutput: string;
-    let destinationOutput:string;
+    let departureOutput;
+    let destinationOutput;
 
     //If a date in the future was not specified for flying we assume departure is now and output back to the user
     if (dateTime == null) {
         departureOutput = await callWeatherApi(departureCityData)
         destinationOutput = await callWeatherApi(destinationCityData, arrivalTime)
-        conv.add(departureOutput); 
-        conv.add(destinationOutput);
+        
+
+        let departureMessage = 'At this time in ' + departureCityData['results'][0]['address_components'][0]['short_name'] + 
+        ' it is ' + departureOutput.conditions +' with a temperature of ' +
+        + departureOutput.temp + '°C and a windspeed of '
+        + departureOutput.windSpeed + ' knots.';
+
+        let destinationMessage = 'At ' + arrivalTime.getHours() + ':' + arrivalTime.getMinutes() + ' in ' + destinationCityData['results'][0]['address_components'][0]['short_name'] + 
+        ' it is ' + destinationOutput.conditions +' with a temperature of ' +
+        + destinationOutput.temp + '°C and a windspeed of '
+        + destinationOutput.windSpeed + ' knots.';
+
+        conv.add(departureMessage); 
+        conv.add(destinationMessage);
     }
     else {
         departureOutput = await callWeatherApi(departureCityData, dateTime)
         destinationOutput = await callWeatherApi(destinationCityData, arrivalTime)
-        conv.add(departureOutput); 
-        conv.add(destinationOutput);
+        
+        let departureMessage = 'At ' + dateTime.getHours() + ':' + dateTime.getMinutes() + ' in ' + departureCityData['results'][0]['address_components'][0]['short_name'] + 
+        ' it is ' + departureOutput.conditions +' with a temperature of ' +
+        + departureOutput.temp + '°C and a windspeed of '
+        + departureOutput.windSpeed + ' knots.';
+
+        let destinationMessage = 'At ' + arrivalTime.getHours() + ':' + arrivalTime.getMinutes() + ' in' + destinationCityData['results'][0]['address_components'][0]['short_name'] + 
+        ' it is ' + destinationOutput.conditions +' with a temperature of ' +
+        + destinationOutput.temp + '°C and a windspeed of '
+        + destinationOutput.windSpeed + ' knots.';
+
+        conv.add(departureMessage); 
+        conv.add(destinationMessage);
     }
 
 }
