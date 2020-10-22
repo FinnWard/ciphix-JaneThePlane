@@ -43,16 +43,15 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
             lat: cityData['latt'],
             lon: cityData['longt'],
             appid: openweathermap.get('apiKey'),
-            units: 'metric',
-            lang: 'nl'
+            units: 'metric'
         };
 
         axios.get(openweathermap.get('host'), { params })
             .then((response: { data: any; }) => {
                 
-
+                console.log("the time given was:" + dateTime)
                 //checking if we have also recieved a timestamp. 
-                if(!(dateTime == undefined)){
+                if(dateTime !== undefined){
                     //defining a unix datetime for comparison
                     let unixDateTime : any;
                     unixDateTime = (dateTime.getTime() / 1000).toFixed(0);
@@ -61,24 +60,25 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
                         if (Math.abs(unixDateTime - response.data['hourly'][i]['dt']) < Math.abs(unixDateTime - closestDate)){
                             closestDate = response.data['hourly'][i]['dt'];
                         }   
-                        console.log(closestDate);               
+                        console.log("Hourly check for closest date: "+closestDate);               
                     };
                     for (var i =0; i< response.data['daily'].length ;i++) {
                         if (Math.abs(unixDateTime - response.data['daily'][i]['dt']) < Math.abs(unixDateTime - closestDate)){
                             closestDate = response.data['daily'][i]['dt'];
                         }  
-                        console.log(closestDate);
+                        console.log("Daily check for closest date: "+closestDate);
                     }
                     
                     // now that we have the closest timestamp to the ask lets find the index. we will first check the hourly dataset
-                    let indexClosestDate = null;
+                    let indexClosestDate = -1;
                     let hourlyDaily = 'hourly';
                     console.log(indexClosestDate);
                     indexClosestDate = response.data['hourly'].map(function(e: { dt: any; }) { return e.dt; }).indexOf(closestDate);
                     let forecastTemp = response.data[hourlyDaily][indexClosestDate]; //need to diclare this before as the format changes with hourly/daily
                     console.log(indexClosestDate + hourlyDaily);
                     // if the index is still NULL the closest date will be in the days
-                    if(indexClosestDate = -1){
+                    if(indexClosestDate == -1){
+                        console.log('Looking for daily');
                         indexClosestDate = response.data['daily'].map(function(e: { dt: any; }) { return e.dt; }).indexOf(closestDate);
                         hourlyDaily = 'daily';
                         forecastTemp = response.data[hourlyDaily][indexClosestDate]['temp']['day'];
@@ -93,27 +93,25 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
 
 
                     // Create response
-                    let output = `Op ${readableDate[2]} ${readableDate[1]} in ${cityData['standard']['city']} 
-                    is het ${conditions['description']} met een tempratuur van
-                    ${forecastTemp}°C en een windsnelheid van
-                    ${forecastWind} knopen.`;
+                    let output = `On ${readableDate[2]} ${readableDate[1]} in ${cityData['standard']['city']} 
+                    it is ${conditions['description']} with a temprature of
+                    ${forecastTemp}°C and a windspeed of
+                    ${forecastWind} knots.`;
 
                     // Resolve the promise with the output text
                     console.log(output);
                     console.log('Im done grabbing weather data!')
-                    resolve(output);
-
-                    
+                    resolve(output);       
                 }
                 else{//if no datetime was provided we respond with current weather
                 let forecast = response.data['current'];
                 let conditions = response.data['current']['weather'][0];
 
                 // Create response
-                let output = `op het moment in ${cityData['standard']['city']} 
-                is het ${conditions['description']} met een tempratuur van
-                ${forecast['temp']}°C en een windsnelheid van
-                ${forecast['wind_speed']} knopen.`;
+                let output = `At this time in ${cityData['standard']['city']} 
+                it is ${conditions['description']} with a temprature of
+                ${forecast['temp']}°C and a windspeed of
+                ${forecast['wind_speed']} knots.`;
 
                 // Resolve the promise with the output text
                 console.log(output);
@@ -146,7 +144,7 @@ export function callGeoApi(city: string) {
         axios.get(geocode.get('host'), { params })
             .then((response: { data: any; }) => {
                 if(response.data['standard']['city']==null){
-                    resolve(`stad niet gevonden!`);
+                    resolve(`Ohh! I dident manage to find the city!`);
                 }
                 console.log(response.data);
                 resolve(response.data);

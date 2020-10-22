@@ -6,11 +6,11 @@ export const weather = (conv: any) => {
     //required paramater to get weather info
     let city = conv.parameters['geo-city'];
     if (!city){
-        return conv.add('Hier is het wel lekker weer! Waar zit jij?')
+        return conv.add('The digital sun is shining over here! But where are you at now?')
     }
 
     //parsing a date if available.
-    let dateTime = new Date();
+    let dateTime: any = null;
     console.log(dateTime);
     if (conv.parameters['date']) {
         dateTime = new Date(conv.parameters['date']);
@@ -21,9 +21,17 @@ export const weather = (conv: any) => {
     return callGeoApi(city).then((cityOutput) => {
         let cityData = cityOutput;
         console.log('Im amout to grab weather data!')
-        return callWeatherApi(cityData,dateTime).then((output) => {
-            conv.add(output); // Return the results of the weather API to Dialogflow
-        }).catch(() => conv.add(`Oei! Ik kan het weer niet vinden maar ik hoop dat het zonnig is!`));
-    }).catch(() => conv.add(`Oei! Klinkt als een leuke plek maar ik herken het niet. Is dat een stad?`));
+        if(dateTime = null){
+            return callWeatherApi(cityData).then((output) => {
+                conv.add(output); // Return the results of the weather API to Dialogflow
+            }).catch(() => conv.add(`Darn! i cant seem to find the weather, would you mind taking a peek out of the window?`));
+        }
+        else{
+            return callWeatherApi(cityData,dateTime).then((output) => {
+                conv.add(output); // Return the results of the weather API to Dialogflow
+            }).catch(() => conv.add(`Darn! i cant seem to find the weather, would you mind taking a peek out of the window?`));
+        }
+        
+    }).catch(() => conv.add(`Darn! Sounds like a swell place but i dont recognise it! Is this a city?`));
     
 }

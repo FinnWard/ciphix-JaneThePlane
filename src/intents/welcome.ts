@@ -2,6 +2,6 @@
 export const welcome = (conv: any) => {
 
     return conv.add(
-        `Hallo! Ik ben Veertje, waar kan ik je mee van dienst zijn vandaag? will je weer informatie? of vlucht informatie?`
+        `Howdy! You can call me Heather and i know all about your local weather! Would you like a weather forcast or weather information around your flight?`
     )
 }
