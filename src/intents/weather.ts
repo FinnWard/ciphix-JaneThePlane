@@ -15,18 +15,20 @@ export const weather = (conv: any) => {
     if (conv.parameters['date']) {
         dateTime = new Date(conv.parameters['date']);
     }
-    
+    console.log(dateTime);  
     //getting further data on the city eg lattitude & longtitude
     console.log('Im amout to grab geo data!')
     return callGeoApi(city).then((cityOutput) => {
         let cityData = cityOutput;
-        console.log('Im amout to grab weather data!')
-        if(dateTime = null){
+  
+        if(dateTime == null){
+            console.log('Im amout to grab weather data without a date!')
             return callWeatherApi(cityData).then((output) => {
                 conv.add(output); // Return the results of the weather API to Dialogflow
             }).catch(() => conv.add(`Darn! i cant seem to find the weather, would you mind taking a peek out of the window?`));
         }
         else{
+            console.log('Im amout to grab weather data with a date!')
             return callWeatherApi(cityData,dateTime).then((output) => {
                 conv.add(output); // Return the results of the weather API to Dialogflow
             }).catch(() => conv.add(`Darn! i cant seem to find the weather, would you mind taking a peek out of the window?`));

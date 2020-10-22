@@ -8,6 +8,7 @@ import { fallback } from './intents/fallback'
 import { welcome } from './intents/welcome'
 import { weather } from './intents/weather'
 import { flight } from './intents/flight'
+import { smallTalk } from './intents/smallTalk'
 
 const app = express()
 
@@ -26,6 +27,7 @@ intents.set('Default Fallback Intent', fallback)
 intents.set('Default Welcome Intent', welcome)
 intents.set('WeatherForecast', weather)
 intents.set('Flight', flight)
+intents.set('smallTalk', smallTalk)
 
 
 app.post('/', async (req, res) => {

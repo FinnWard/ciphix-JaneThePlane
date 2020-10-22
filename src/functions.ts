@@ -2,6 +2,12 @@
 import axios from 'axios';
 
 
+/*  Calculate flight time works with Lattitude and longtitude of 2 coordinates provided in decimal format eg.:52.379189, -4.899431
+*   Some smart people provdided distance calculations and how to estimate flight time based off of that distance.
+*   Due to the weatherdata only being available Hourly in my API we dont need 100% flight time accuracy
+*   flighttime is returned as a number of hours. 
+*/
+
 export function calculateFlightTime(departureLat: number,departureLon: number, destinationLat: number, destinationLon: number){
 
     //below calculation for flight distance provided by: https://www.movable-type.co.uk/scripts/latlong.html
@@ -26,8 +32,12 @@ export function calculateFlightTime(departureLat: number,departureLon: number, d
     return flightTime;
 }
 
+/*  CallWeatherAPI outputs weather data based on location and time. if you provide a empty date vaiable it will output current weather at location
+*   
+*   
+*   
+*/
 
-//A function that outputs weather data based on location and time. if you provide a empty date vaiable it will output current weather at location
 export function callWeatherApi(cityData: any,dateTime?: Date) {
     
     //Setting the API data:
@@ -51,7 +61,7 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
                 
                 console.log("the time given was:" + dateTime)
                 //checking if we have also recieved a timestamp. 
-                if(dateTime !== undefined){
+                if(dateTime != undefined){
                     //defining a unix datetime for comparison
                     let unixDateTime : any;
                     unixDateTime = (dateTime.getTime() / 1000).toFixed(0);
@@ -74,7 +84,7 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
                     let hourlyDaily = 'hourly';
                     console.log(indexClosestDate);
                     indexClosestDate = response.data['hourly'].map(function(e: { dt: any; }) { return e.dt; }).indexOf(closestDate);
-                    let forecastTemp = response.data[hourlyDaily][indexClosestDate]; //need to diclare this before as the format changes with hourly/daily
+                    let forecastTemp = response.data[hourlyDaily][indexClosestDate]['temp']; //need to diclare this before as the format changes with hourly/daily
                     console.log(indexClosestDate + hourlyDaily);
                     // if the index is still NULL the closest date will be in the days
                     if(indexClosestDate == -1){
@@ -93,8 +103,9 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
 
 
                     // Create response
-                    let output = `On ${readableDate[2]} ${readableDate[1]} in ${cityData['standard']['city']} 
-                    it is ${conditions['description']} with a temprature of
+                    let output = 
+                    `On ${readableDate[2]} ${readableDate[1]} in ${cityData['standard']['city']} 
+                    it is ${conditions['description']} with a temperature of
                     ${forecastTemp}°C and a windspeed of
                     ${forecastWind} knots.`;
 
@@ -108,8 +119,9 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
                 let conditions = response.data['current']['weather'][0];
 
                 // Create response
-                let output = `At this time in ${cityData['standard']['city']} 
-                it is ${conditions['description']} with a temprature of
+                let output = 
+                `At this time in ${cityData['standard']['city']} 
+                it is ${conditions['description']} with a temperature of
                 ${forecast['temp']}°C and a windspeed of
                 ${forecast['wind_speed']} knots.`;
 
