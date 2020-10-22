@@ -50,11 +50,12 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
     
     return new Promise<string>((resolve, reject) => {
         const params = {
-            lat: cityData['latt'],
-            lon: cityData['longt'],
+            lat: cityData['results'][0]['geometry']['location']['lat'],
+            lon: cityData['results'][0]['geometry']['location']['lng'],
             appid: openweathermap.get('apiKey'),
             units: 'metric'
         };
+        console.log('lat: '+ params.lat + ' lng: '+ params.lon)
 
         axios.get(openweathermap.get('host'), { params })
             .then((response: { data: any; }) => {
@@ -104,7 +105,7 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
 
                     // Create response
                     let output = 
-                    `On ${readableDate[2]} ${readableDate[1]} in ${cityData['standard']['city']} 
+                    `On ${readableDate[2]} ${readableDate[1]} in ${cityData['results'][0]['address_components'][0]['short_name']} 
                     it is ${conditions['description']} with a temperature of
                     ${forecastTemp}°C and a windspeed of
                     ${forecastWind} knots.`;
@@ -120,7 +121,7 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
 
                 // Create response
                 let output = 
-                `At this time in ${cityData['standard']['city']} 
+                `At this time in ${cityData['results'][0]['address_components'][0]['short_name']} 
                 it is ${conditions['description']} with a temperature of
                 ${forecast['temp']}°C and a windspeed of
                 ${forecast['wind_speed']} knots.`;
@@ -141,22 +142,25 @@ export function callWeatherApi(cityData: any,dateTime?: Date) {
 //a function that provides Geodata on a city string you provide
 export function callGeoApi(city: string) {
 
+    //https://maps.googleapis.com/maps/api/geocode/json?address=rotterdam&key=AIzaSyCl9m-Vrwp3YcIIZqZ4Eo6ZPBs4mOoasv4
     //setting API data
     const geocode = new Map();
-    geocode.set('host', 'https://geocode.xyz/')
-    geocode.set('apiKey', '146630500381958569682x18325')
+    //geocode.set('host', 'https://geocode.xyz/')
+    //geocode.set('apiKey', '146630500381958569682x18325')
     
+    geocode.set('host', 'https://maps.googleapis.com/maps/api/geocode/json')
+    geocode.set('apiKey', 'AIzaSyCl9m-Vrwp3YcIIZqZ4Eo6ZPBs4mOoasv4')
+
     console.log('Im grabbing geo data!')
     return new Promise<any>((resolve, reject) => {
         const params = {
-            auth: geocode.get('apiKey'),
-            locate: city,
-            json: '1'
+            key: geocode.get('apiKey'),
+            address: city,
         }
         axios.get(geocode.get('host'), { params })
             .then((response: { data: any; }) => {
-                if(response.data['standard']['city']==null){
-                    resolve(`Ohh! I dident manage to find the city!`);
+                if(response.data['status']=="ZERO_RESULTS"){
+                    resolve(`Ohh! I dident manage to find `+city);
                 }
                 console.log(response.data);
                 resolve(response.data);

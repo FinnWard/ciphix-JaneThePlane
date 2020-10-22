@@ -12,4 +12,10 @@
 10/21/2020
 	- geoData API is whack, amsterdam is in japan and Tokio is in south africa apparently. 
 	- International databases dont like dutch city names eg: parijs instead of paris. dialogflow automaticly provides dutch naming even if spelled in english way. 
+		+ converted chatbot to english 
     
+10/22/2020
+	- Chatbot succeeds in console testing but fails in webdemo environment when i call weather information for a flight. i believe this would be due to 4 API calls needing to happen timing out.
+		+ implemented async handeling of API's
+	- chatbot geolocating was still terrible
+		+ implemented GoogleMaps GeoAPI

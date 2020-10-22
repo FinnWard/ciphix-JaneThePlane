@@ -4,18 +4,17 @@ import { callGeoApi, callWeatherApi, calculateFlightTime } from '../functions';
 export const flight = async (conv: any) => {
 
     //parse data that is sent to the bot
-    console.log(conv.parameters);
+    console.log('flight parameters: ' + conv.parameters);
     let departureCity = conv.parameters['departureCity'];
     let destinationCity = conv.parameters['destinationCity'];
 
     //parsing a date if available.
     let dateTime: any = null;
-    console.log(dateTime);
     if (conv.parameters['date']) {
         console.log('we have a date!')
         dateTime = conv.parameters['date'];
     }
-    
+
     //do some slot handeling to make sure we get data
     if (!departureCity && !destinationCity) {
         return conv.add('That sounds just swell! Whereabouts are we and whats the destinaton partner?')
@@ -37,7 +36,12 @@ export const flight = async (conv: any) => {
     destinationCityData = await callGeoApi(destinationCity)
 
     //call flight time to calculate flight time and set values for minutes and hours
-    let flighttime: number = calculateFlightTime(departureCityData['latt'], departureCityData['longt'], destinationCityData['latt'], destinationCityData['longt'])
+    let flighttime: number = calculateFlightTime(
+        departureCityData['results'][0]['geometry']['location']['lat'], 
+        departureCityData['results'][0]['geometry']['location']['lng'], 
+        destinationCityData['results'][0]['geometry']['location']['lat'], 
+        destinationCityData['results'][0]['geometry']['location']['lng']
+        );
     let flightMinutes: number = Math.floor((flighttime - Math.floor(flighttime)) * 60);
     let flightHours: number = Math.floor(flighttime);
 
