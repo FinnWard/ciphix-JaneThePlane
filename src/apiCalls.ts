@@ -1,42 +1,9 @@
-
 import axios from 'axios';
 import { openweathermapApiKey, geocodeApiKey } from './config'
+import { Forecast } from './utilities'
 
-// grouping used functions for intents to access indevidually without creating interdependancies
-/*  Calculate flight time works with Lattitude and longtitude of 2 coordinates
-    provided in decimal format eg.:52.379189, -4.899431. Some smart people provdided
-    distance calculations and how to estimate flight time based off of that distance.
-    Due to the weatherdata only being available Hourly in my API
-    we dont need 100% flight time accuracy flighttime is returned as a number of hours.
-*/
+// grouping used API calls for intents to access indevidually without creating interdependancies
 
-export function calculateFlightTime(
-  departureLat: number,
-  departureLon: number,
-  destinationLat: number,
-  destinationLon: number,
-) {
-  // below calculation for flight distance provided by: https://www.movable-type.co.uk/scripts/latlong.html
-  const R = 6371e3; // metres
-  const φ1 = departureLat * Math.PI / 180; // φ, λ in radians
-  const φ2 = destinationLat * Math.PI / 180;
-  const Δφ = (destinationLat - departureLat) * Math.PI / 180;
-  const Δλ = (destinationLon - departureLon) * Math.PI / 180;
-
-  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2)
-            + Math.cos(φ1) * Math.cos(φ2)
-            * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  const flightDistance = R * c; // in metres
-  console.log(`distance: ${flightDistance}`);
-  // we calculate the flight time with a rough estimation calculation 30 min plus 1 hour per every 500 miles. calculation provided by https://openflights.org/faq
-  const flightTime = 0.5 + (flightDistance / (500 * 1609.34));
-  console.log(`time: ${flightTime}`);
-  console.log(`Hours: ${Math.floor(flightTime)}`);
-  console.log(`Minutes: ${Math.floor((flightTime - Math.floor(flightTime)) * 60)}`);
-  return flightTime;
-}
 
 /*  CallWeatherAPI outputs weather data based on location and time. if you provide a empty date vaiable it will output current weather at location
 *
@@ -44,11 +11,7 @@ export function calculateFlightTime(
 *
 */
 
-interface Forecast{
-    temp: number;
-    windSpeed: number;
-    conditions: string;
-}
+
 
 export function callWeatherApi(cityData: any, dateTime?: Date) {
 
@@ -64,11 +27,13 @@ export function callWeatherApi(cityData: any, dateTime?: Date) {
     axios.get(openweathermapApiKey.get('host'), { params })
       .then((response: { data: any; }) => {
         console.log(`the time given was:${dateTime}`);
+        
         // checking if we have also recieved a timestamp.
         if (dateTime != undefined) {
           // defining a unix datetime for comparison
           let unixDateTime : any;
           unixDateTime = (dateTime.getTime() / 1000).toFixed(0);
+          console.log(`Unix time:${unixDateTime}`);
           let closestDate = 0; // we will store the closest date here as we iterate
           for (var i = 0; i < response.data.hourly.length; i++) { // as we have hourly and daily date we will need to loop twice.
             if (Math.abs(unixDateTime - response.data.hourly[i].dt) < Math.abs(unixDateTime - closestDate)) {
