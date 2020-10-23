@@ -1,9 +1,8 @@
 import axios from 'axios';
-import { openweathermapApiKey, geocodeApiKey } from './config'
-import { Forecast } from './utilities'
+import { openweathermapApiKey, geocodeApiKey } from './config';
+import { Forecast } from './utilities';
 
 // grouping used API calls for intents to access indevidually without creating interdependancies
-
 
 /*  CallWeatherAPI outputs weather data based on location and time. if you provide a empty date vaiable it will output current weather at location
 *
@@ -11,10 +10,7 @@ import { Forecast } from './utilities'
 *
 */
 
-
-
 export function callWeatherApi(cityData: any, dateTime?: Date) {
-
   return new Promise<Forecast>((resolve, reject) => {
     const params = {
       lat: cityData.results[0].geometry.location.lat,
@@ -27,7 +23,7 @@ export function callWeatherApi(cityData: any, dateTime?: Date) {
     axios.get(openweathermapApiKey.get('host'), { params })
       .then((response: { data: any; }) => {
         console.log(`the time given was:${dateTime}`);
-        
+
         // checking if we have also recieved a timestamp.
         if (dateTime != undefined) {
           // defining a unix datetime for comparison
@@ -105,7 +101,6 @@ export function callWeatherApi(cityData: any, dateTime?: Date) {
 
 // a function that provides Geodata on a city string you provide
 export function callGeoApi(city: string) {
-
   console.log('Im grabbing geo data!');
   return new Promise<any>((resolve, reject) => {
     const params = {
@@ -114,7 +109,7 @@ export function callGeoApi(city: string) {
     };
     axios.get(geocodeApiKey.get('host'), { params })
       .then((response: { data: any; }) => {
-        if (response.data['status'] == 'ZERO_RESULTS') {
+        if (response.data.status == 'ZERO_RESULTS') {
           resolve(`Ohh! I dident manage to find ${city}`);
         }
         console.log(response.data);
