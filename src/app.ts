@@ -1,24 +1,23 @@
 import express from 'express'
 import cors from 'cors'
+import { PORT } from './config'
 
 import { WebhookClient } from 'dialogflow-fulfillment'
 
 // intent method imports
-import { fallback } from './intents/fallback'
-import { welcome } from './intents/welcome'
-import { weather } from './intents/weather'
-import { flight } from './intents/flight'
-import { smallTalk } from './intents/smallTalk'
+import fallback from './intents/fallback'
+import welcome from './intents/welcome'
+import weather from './intents/weather'
+import flight from './intents/flight'
+import smallTalk from './intents/smallTalk'
 
 const app = express()
-
-const PORT: number = 8080
 
 app.use(
     cors({ origin: '*' }),
     express.json(),
 )
-
+//test
 // Map of intent-name to their respective method
 const intents = new Map<string, (agent: any) => void>()
 

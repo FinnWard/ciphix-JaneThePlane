@@ -121,9 +121,11 @@ temp/
 
 # End of https://www.gitignore.io/api/node,visualstudiocode
 
+src/config.ts
 private
 !private/.gitkeep
 
+.eslintrc.js
 .env
 .env.*
 

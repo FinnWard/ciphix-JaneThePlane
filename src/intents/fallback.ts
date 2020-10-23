@@ -5,3 +5,4 @@ export const fallback = (conv: any) => {
         `Darn, seems i drifted off. Sorry about that. Where were we? I can help you with the weather forecast or with weather details for your flight!`
     )
 }
+export default fallback;

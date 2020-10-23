@@ -22,9 +22,20 @@
     "express-basic-auth": "^1.2.0",
     "google-auth-library": "^6.0.5",
     "moment": "^2.26.0",
-    "ngrok": "^3.3.0"
+    "ngrok": "^3.3.0",
+    "typescript": "^4.0.3"
   },
   "devDependencies": {
-    "nodemon": "^2.0.4"
+    "@typescript-eslint/eslint-plugin": "^4.5.0",
+    "@typescript-eslint/parser": "^4.5.0",
+    "eslint": "^7.11.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-standard": "^15.0.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.2",
+    "nodemon": "^2.0.4",
+    "prettier": "2.1.2"
   }
 }
