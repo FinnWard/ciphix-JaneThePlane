@@ -12,8 +12,6 @@ import {
 
 // Intent name: flight Intent
 export const flight = async (conv: any) => {
-  console.log(conv.parameters);
-
   // parsing a date & time if available.
   const dateTime = setDateTime(conv.parameters.date, conv.parameters.time);
 
@@ -33,12 +31,8 @@ export const flight = async (conv: any) => {
   }
 
   // call geo data for both departure and destination
-  let departureCityData: any;
-  let destinationCityData: any;
-
-  departureCityData = await callGeoApi(departureCity).catch(console.error);
-  destinationCityData = await callGeoApi(destinationCity).catch(console.error);
-
+  const departureCityData = await callGeoApi(departureCity).catch(console.error);
+  const destinationCityData = await callGeoApi(destinationCity).catch(console.error);
 
   // call flight time to calculate flight time and set values for minutes and hours
   const flighttime: number = calculateFlightTime(
@@ -58,28 +52,22 @@ export const flight = async (conv: any) => {
 
   // Sharing arrival time with pilot
   conv.add(`Expected arrival is at ${arrivalTime.getHours()}:${arrivalTime.getMinutes()}`);
-  console.log(dateTime);
-  console.log(arrivalTime);
-
-  // we will put the weather output here
-  let departureOutput: Forecast;
-  let destinationOutput: Forecast;
 
   // call weatherAPI for both departure and destination
-  departureOutput = await callWeatherApi(departureCityData, dateTime);
-  destinationOutput = await callWeatherApi(destinationCityData, arrivalTime);
+  const departureOutput: Forecast = await callWeatherApi(departureCityData, dateTime);
+  const destinationOutput: Forecast = await callWeatherApi(destinationCityData, arrivalTime);
 
   // hand parameters off to a handeler to draft output
   conv.add(addWeatherMessag(
-    departureOutput, 
-    departureCityData.results[0].address_components[0].short_name, 
-    dateTime
-    ));
+    departureOutput,
+    departureCityData.results[0].address_components[0].short_name,
+    dateTime,
+  ));
   conv.add(addWeatherMessag(
-    destinationOutput, 
-    destinationCityData.results[0].address_components[0].short_name, 
-    arrivalTime
-    ));
+    destinationOutput,
+    destinationCityData.results[0].address_components[0].short_name,
+    arrivalTime,
+  ));
 };
 
 export default flight;

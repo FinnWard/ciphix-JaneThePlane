@@ -3,8 +3,6 @@ import { addWeatherMessag, setCity, setDateTime } from '../utilities';
 
 // Intent name: Huidig weer
 export const weather = (conv: any) => {
-  console.log(conv.parameters);
-
   // required paramater to get weather info
   const city = setCity(conv.parameters['geo-city'], conv.parameters.airport);
 
@@ -19,7 +17,9 @@ export const weather = (conv: any) => {
   return callGeoApi(city).then((cityOutput) => {
     const cityData = cityOutput;
 
+    // pass lattitude and longtitude to weather API
     return callWeatherApi(cityData).then((forecast) => {
+      // pass the results to the message handeler and return
       conv.add(addWeatherMessag(
         forecast,
         cityData.results[0].address_components[0].short_name,

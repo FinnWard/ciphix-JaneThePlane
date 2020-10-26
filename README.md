@@ -6,6 +6,7 @@ This boilerplate project will help you out with the basic configurations of your
 
 Clone this repository by running '`$ git clone https://github.com/kaspardohrin/ciphix-ca-case.git`' in a terminal of choice.
 
+
 ## Installation
 
 It's adviced to use Visual Studio Code to create the CA Air-case as it's the default IDE used at Ciphix. You can download VSC here: https://code.visualstudio.com/download
