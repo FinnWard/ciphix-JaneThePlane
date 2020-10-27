@@ -6,6 +6,27 @@ This boilerplate project will help you out with the basic configurations of your
 
 Clone this repository by running '`$ git clone https://github.com/kaspardohrin/ciphix-ca-case.git`' in a terminal of choice.
 
+## Additional configuration needed for Fionns version
+
+I have set a `config.ts` file that should adhere to the following format:
+
+```conf
+export const PORT: number = 8080;
+
+export const openweathermapApiKey = new Map();
+openweathermapApiKey.set('host', 'https://api.openweathermap.org/data/2.5/onecall');
+openweathermapApiKey.set('apiKey', 'YOUR_API_KEY');
+
+export const geocodeApiKey = new Map();
+geocodeApiKey.set('host', 'https://maps.googleapis.com/maps/api/geocode/json');
+geocodeApiKey.set('apiKey', 'YOUR_API_KEY');
+```
+This file should be placed next to the `app.ts` file. 
+If you are lazy and want to abuse my API keys before i regenerate them you can dig through the version history. 
+
+otherwise you can get a google maps api key here: https://developers.google.com/maps/documentation/javascript/get-api-key
+and a openweather API key here: https://openweathermap.org/api
+
 
 ## Installation
 
