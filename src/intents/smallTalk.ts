@@ -45,6 +45,7 @@ export const smallTalk = (conv: any) => {
     case 'yourself':
       return conv.add(meCase());
     default:
+      // if we detect a subject but no defined case we bounce it back
       return conv.add(
         `Well, it seems you know quite a bit about ${conv.parameters.context}! Care to tell me a bit more about that?`,
       );

@@ -11,20 +11,24 @@ import {
 } from '../utilities';
 
 // Intent name: flight Intent
+
 export const flight = async (conv: any) => {
+  
   // parsing a date & time if available.
   const dateTime = setDateTime(conv.parameters.date, conv.parameters.time);
 
+  // merging the potential departure city input
   const departureCity = setCity(
     conv.parameters.departureCity,
     conv.parameters.departureAirport.city,
 
   );
+  // merging the potential destination city input
   const destinationCity = setCity(
     conv.parameters.destinationCity,
     conv.parameters.destinationAirport.city,
   );
-
+  // passing the needed inputs to see if they are filled. if not, we query the user for input
   const slotQuery = slotHandleFlightParam(departureCity, destinationCity);
   if (slotQuery) {
     return conv.add(slotQuery);
@@ -41,6 +45,7 @@ export const flight = async (conv: any) => {
     destinationCityData.results[0].geometry.location.lat,
     destinationCityData.results[0].geometry.location.lng,
   );
+    // Breaking the flight time into hours & minutes
   const flightMinutes: number = Math.floor((flighttime - Math.floor(flighttime)) * 60);
   const flightHours: number = Math.floor(flighttime);
 

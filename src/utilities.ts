@@ -1,6 +1,6 @@
 // file created to group the functions called in the program
 
-// litte object to store weather data
+// litte object to store weather data we get from the weather API
 export interface Forecast{
   temp: number;
   windSpeed: number;
@@ -56,7 +56,7 @@ export function slotHandleFlightParam(departureCity: string, destinationCity: st
   return '';
 }
 
-// very simple converging of airport or city input to return single city name
+// Simple converging of airport or city input to return single city name
 export function setCity(geoCity: string, airport: string): string {
   let city;
   if (geoCity) {
@@ -102,9 +102,6 @@ export function addFlightTimeOutput(flightHours: number, flightMinutes: number):
 // if no departure time is given we assume they are departing now
 // we return the arrival time as a Date type
 export function setArrivalTime(flightHours: number, flightMinutes: number, dateTime?: Date): Date {
-  console.log(`datetime set at: ${dateTime}`);
-  console.log(`flight hours: ${flightHours}`);
-  console.log(`flight minutes: ${flightMinutes}`);
   const arrivalTime = new Date();
   if (dateTime) { // if we have a time given from user we add flight time to that
     arrivalTime.setTime(dateTime.getTime());
@@ -114,36 +111,21 @@ export function setArrivalTime(flightHours: number, flightMinutes: number, dateT
     arrivalTime.setHours(arrivalTime.getHours() + flightHours);
     arrivalTime.setMinutes(arrivalTime.getMinutes() + flightMinutes);
   }
-  console.log(`arrival time set at: ${arrivalTime}`);
   return arrivalTime;
 }
 
-// now that we have the closest timestamp to the ask lets find the index.
-// we will first check the hourly dataset
-export function parseWeatherData(response: any, closestDate: number):Forecast {
-  let indexClosestDate: number = -1;
-  let hourlyDaily: string = 'hourly';
+// We check the index of the closest weather and pass the info back as a forecast type
+export function parseWeatherData(response: any, closestDateIndex: (string | number)[]): Forecast {
   let temp: number;
-  console.log(`Weather data: ${response}`);
-  console.log(`1 date: ${closestDate}`);
-  console.log(`1 index: ${indexClosestDate}`);
-  indexClosestDate = response.data.hourly.map((e: { dt: any; }) => e.dt).indexOf(closestDate);
-  if (indexClosestDate === -1) {
-    console.log(`4 index: ${indexClosestDate}`);
-    indexClosestDate = response.data.daily.map((e: { dt: any; }) => e.dt).indexOf(closestDate);
-    console.log(`5 index: ${indexClosestDate} & ${response.data.daily[indexClosestDate].dt}`);
-    hourlyDaily = 'daily';
-    temp = response.data[hourlyDaily][indexClosestDate].temp.day;
+  // where we find the temp in the dataset is based on if we have daily or hourly forecast
+  if (closestDateIndex[0] === 'daily') {
+    temp = response.data[closestDateIndex[0]][closestDateIndex[1]].temp.day;
   } else {
-    console.log(`2 index: ${indexClosestDate}`);
-    temp = response.data[hourlyDaily][indexClosestDate].temp;
-    console.log(`3 index: ${indexClosestDate} & ${response.data.hourly[indexClosestDate].dt}`);
-    console.log(`temp obj: ${temp}`);
+    temp = response.data[closestDateIndex[0]][closestDateIndex[1]].temp;
   }
 
-  // if the index is still NULL the closest date will be in the days
-  const windSpeed: number = response.data[hourlyDaily][indexClosestDate].wind_speed;
-  const conditions: string = response.data[hourlyDaily][indexClosestDate].weather[0].description;
+  const windSpeed = response.data[closestDateIndex[0]][closestDateIndex[1]].wind_speed;
+  const conditions = response.data[closestDateIndex[0]][closestDateIndex[1]].weather[0].description;
   const forecast = {
     temp,
     windSpeed,
@@ -152,29 +134,33 @@ export function parseWeatherData(response: any, closestDate: number):Forecast {
   return forecast;
 }
 
-export function findClosestWeatherData(response:any, dateTime: Date): number {
+// As we have quite a few forcast datapoints we need to look for the closest to our datetime
+// we pass the raw weatherdata and datetime we are looking for.
+export function findClosestWeatherData(response:any, dateTime: Date) {
   // defining a unix datetime for comparison
   const unixDateTime: number = Number((dateTime.getTime() / 1000).toFixed(0));
-  console.log(`requqested unix time: ${unixDateTime}`);
-  console.log(`requqested time: ${dateTime}`);
   let closestDate = 0; // we will store the closest date here as we iterate
+  const closestDateIndex = ['hourly', 0]; // we have hourly information for 48 hours after that we have 7 days for daily forcast.
 
   // as we have hourly and daily date we will need to loop twice.
   for (let i = 0; i < response.data.hourly.length; i += 1) {
+    // we use the math abs function to see how close the data is to our date
     if (Math.abs(unixDateTime - response.data.hourly[i].dt)
     < Math.abs(unixDateTime - closestDate)) {
       closestDate = response.data.hourly[i].dt;
-      console.log(`hourly: ${closestDate}`);
+      closestDateIndex[1] = i;
+      closestDateIndex[0] = 'hourly';
     }
   }
   for (let i = 0; i < response.data.daily.length; i += 1) {
     if (Math.abs(unixDateTime - response.data.daily[i].dt)
     < Math.abs(unixDateTime - closestDate)) {
       closestDate = response.data.daily[i].dt;
-      console.log(`daily: ${closestDate}`);
+      closestDateIndex[1] = i;
+      closestDateIndex[0] = 'daily';
     }
   }
-  return closestDate;
+  return closestDateIndex;
 }
 
 // draft output message based on weather and city information provided from API's.
@@ -197,6 +183,7 @@ export function addWeatherMessag(cityData: Forecast, cityName: string, dateTime?
     cityData.windSpeed} knots.`);
 }
 
+// small talk output function
 export function helpCase(): string {
   return `I can help you with the weather forecast or with weather details for your flight!
   for weather information plase provide me with a location and optionally a day while mentioning "weather",
@@ -204,6 +191,7 @@ export function helpCase(): string {
   I hope this helps!`;
 }
 
+// small talk output function with a random joke
 export function jokeCase(): string {
   const jokes: Array<string> = [
     'I dont know man, go look over at reddit.com/r/Jokes',
@@ -218,21 +206,27 @@ export function jokeCase(): string {
   return jokes[Math.floor(Math.random() * jokes.length)];
 }
 
+// small talk output function
 export function hobbiesCase(): string {
   return 'Well i spend most of my time staring at clouds. yesterday i managed to spot a Lenticularis! do you have a favorite cloud?';
 }
 
+// small talk output function
 export function filmCase(): string {
   return 'I honestly just bingewatch tornado on repeat when im not working lol. whats your favorite movie?';
 }
+
+// small talk output function
 export function foodCase(): string {
   return 'If i could eat i would want to try cotton candy! It looks like a tasty cloud :D';
 }
 
+// small talk output function
 export function musicCase(): string {
   return 'have you heard of Typhoon? they are so hot right now!';
 }
 
+// small talk output function
 export function meCase(): string {
   return `ohh! Silly old me? Well i mostly keep track of planes and the weather! 
   Not much more to say... Ohh and i consist of hundreds of thousands of bits of electriciy turning on and off! 

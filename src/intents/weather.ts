@@ -3,9 +3,11 @@ import { addWeatherMessag, setCity, setDateTime } from '../utilities';
 
 // Intent name: Huidig weer
 export const weather = (conv: any) => {
-  // required paramater to get weather info
+  
+  // merge city input
   const city = setCity(conv.parameters['geo-city'], conv.parameters.airport);
 
+  // basic slotfilling on location
   if (!city) {
     return conv.add('The digital sun is shining over here! But where are you at now?');
   }

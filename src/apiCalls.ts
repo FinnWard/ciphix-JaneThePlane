@@ -19,8 +19,6 @@ export function callWeatherApi(cityData: any, dateTime?: Date) {
     console.log(`grabbing weather data for: ${cityData.results[0].address_components[0].short_name}`);
     axios.get(openweathermapApiKey.get('host'), { params })
       .then((response: { data: any; }) => {
-        console.log(response.data.hourly[7].temp);
-        console.log(response.data.daily[2].temp.day);
         // checking if we have also recieved a timestamp.
         if (dateTime !== undefined) {
           const closestDate = findClosestWeatherData(response, dateTime);
