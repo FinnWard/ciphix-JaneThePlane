@@ -19,3 +19,9 @@
 		+ implemented async handeling of API's
 	- chatbot geolocating was still terrible
 		+ implemented GoogleMaps GeoAPI
+
+10/26/2020
+	-	remaining issues:
+		-	intent handelers still often miss user input
+		-	still many variables with any type due to inexperiance with managing the exact handovers
+		 
