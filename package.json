@@ -14,7 +14,7 @@
     "@google-cloud/dialogflow": "^2.0.0",
     "@types/cors": "^2.8.6",
     "@types/dialogflow-fulfillment": "^0.6.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "cors": "^2.8.5",
     "dialogflow-fulfillment": "github:marceldillen/dialogflow-fulfillment-nodejs#master",
     "dotenv": "^8.2.0",
